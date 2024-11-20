@@ -23,9 +23,9 @@ class BranchYn(nn.Module):
     def __init__(self):
         super(BranchYn, self).__init__()
         self.layers = nn.Sequential5(
-            nn.Conv2d(1, 32, kernel_size=(7,7), stride=(1,3)),
+            nn.Conv2d(1, 32, kernel_size=(7,7), padding="same", stride=(1,3)),
             nn.ReLU(),
-            nn.Conv2d(7, 3, kernel_size=(7,3)),
+            nn.Conv2d(32, 1, kernel_size=(7,3), padding="same"),
             nn.Sigmoid()
         )
     
@@ -35,16 +35,16 @@ class BranchYn(nn.Module):
 class BranchY0(nn.Module):
     def __init__(self):
         super(BranchY0, self).__init__()
-        self.layer_1 = nn.Conv2d(1, 32, kernel_size=(5,5), stride=(1,3))
+        self.layer_1 = nn.Conv2d(1, 32, kernel_size=(5,5), padding="same", stride=(1,3))
         self.batch_norm_1 = nn.BatchNorm2d(32)
         self.acti_1 = nn.ReLU()
-        self.layer_2 = nn.Conv2d(33, 1, kernel_size=(3,3))
+        self.layer_2 = nn.Conv2d(33, 1, padding="same", kernel_size=(3,3))
         self.sigmo = nn.Sigmoid()
 
     def forward(self,x,Yn):
         x = self.layer_1(x)
         x = self.batch_norm_1(x)
         x = self.acti_1(x)
-        x = th.concatenate((x,Yn))
+        x = th.cat((x,Yn), dim=1)
         x = self.layer_2(x)
         return self.sigmo(x)
