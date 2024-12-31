@@ -14,7 +14,7 @@ Le modèle est une architecture légère basée sur des réseaux neuronaux qui u
   - **Yn** : Une représentation quantifiée pour détecter les événements de note.
   - **Yo** : Une estimation des onsets (début des notes), essentielle pour la transcription.
 
-![Architecture du Modèle](image.png)
+![Architecture du Modèle](architecture.png)
 
 ## Choix de la Base de Données
 
