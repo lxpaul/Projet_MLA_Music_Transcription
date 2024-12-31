@@ -48,3 +48,54 @@ The data is organized into two subfolders:
 2. **Matrices**: Contains the time-frequency binary matrices Yn, Yo, and Yp generated for each audio file (the matrices represent the full duration of the audio file). These data will be ready for training the model after segmenting them into 2-second portions.
 
 
+## Model Implementation and Training
+
+The model implementation and training scripts are available in the **Model Implementation and Training** folder. Detailed instructions in the provided notebooks will guide you through the training process using the prepared dataset.
+
+## Using the Trained Model
+
+To use the trained model (e.g., `model.h5`), follow these steps:
+
+### Predicting and Visualizing Results
+
+1. Download the trained model (`model.h5`) from the repository.
+2. Use example 2-second audio files in the `examples` folder to test the model.
+3. The following Python code loads the model, makes predictions, and visualizes the results:
+
+```python
+import tensorflow as tf
+import numpy as np
+import librosa
+import matplotlib.pyplot as plt
+
+# Load the trained model
+model = tf.keras.models.load_model("model.h5")
+
+# Load a 2-second audio example
+audio_path = "examples/example_audio.wav"
+y, sr = librosa.load(audio_path, sr=22050, duration=2.0)
+
+# Preprocess the audio (convert to Constant-Q Transform)
+cqt = librosa.cqt(y, sr=sr, n_bins=84, bins_per_octave=12)
+cqt = np.abs(cqt).T  # Transpose for compatibility
+
+# Make predictions
+predictions = model.predict(np.expand_dims(cqt, axis=0))
+
+# Visualize results
+Yn, Yo, Yp = predictions
+plt.figure(figsize=(15, 5))
+plt.subplot(3, 1, 1)
+plt.title("Yn (Note Activations)")
+plt.imshow(Yn[0], aspect='auto', origin='lower')
+plt.colorbar()
+plt.subplot(3, 1, 2)
+plt.title("Yo (Note Onsets)")
+plt.imshow(Yo[0], aspect='auto', origin='lower')
+plt.colorbar()
+plt.subplot(3, 1, 3)
+plt.title("Yp (Multi-Pitch Estimate)")
+plt.imshow(Yp[0], aspect='auto', origin='lower')
+plt.colorbar()
+plt.tight_layout()
+plt.show()
