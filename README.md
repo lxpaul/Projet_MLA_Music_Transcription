@@ -1,6 +1,6 @@
-# Objectif du Projet
+# Objectif
 
-Ce projet consiste à réimplémenter l'architecture décrite dans l'article intitulé [A Lightweight Instrument-Agnostic Model for Polyphonic Note Transcription and Multi-Pitch Estimation](https://arxiv.org/abs/2203.09893).
+Ce travail consiste à réimplémenter l'architecture décrite dans l'article intitulé [A Lightweight Instrument-Agnostic Model for Polyphonic Note Transcription and Multi-Pitch Estimation](https://arxiv.org/abs/2203.09893).
 
 L'objectif est de transcrire automatiquement des notes et d'estimer plusieurs hauteurs (multi-pitch) de manière instrument-agnostique, c'est-à-dire que le modèle peut traiter différents types d'instruments sans nécessiter d'adaptations spécifiques.
 
