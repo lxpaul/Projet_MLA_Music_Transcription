@@ -35,7 +35,7 @@ In the original paper, the architecture was trained on five datasets (seven in t
 
 ### Data Preprocessing
 
-The **DataSet** folder contains a notebook titled "Basic Processing of GuitarSet and Target Time-Frequency Matrix Generation." This notebook demonstrates how to preprocess the GuitarSet data and extract useful annotations (notes and multi-pitch). These annotations are used to generate the following binary target matrices:
+The notebook "Basic Processing of GuitarSet and Target Time-Frequency Matrix Generation" demonstrates how to preprocess the GuitarSet data and extract useful annotations (notes and multi-pitch). These annotations are used to generate the following binary target matrices:
 
 - **Yn**: Corresponds to note activations (whether a note is active).
 - **Yo**: Corresponds to note onsets.
@@ -43,15 +43,14 @@ The **DataSet** folder contains a notebook titled "Basic Processing of GuitarSet
 
 ### Data Organization
 
-The data is organized into two subfolders:
-1. **audio_hex-pickup_debleeded**: Contains the audio files, which serve as inputs to the model.
-2. **Matrices**: Contains the time-frequency binary matrices Yn, Yo, and Yp generated for each audio file (the matrices represent the full duration of the audio file). These data will be ready for training the model after segmenting them into 2-second portions.
+We can organize the data into two subfolders:
+1. **audio_hex-pickup_debleeded**: Contains the audio files, which serve as inputs to the model. These files will be ready for model training after being segmented into 2-second portions.
+2. **matrices**: Contains the time-frequency binary matrices Yn, Yo, and Yp generated for each audio file (the matrices represent the full duration of the audio file). These data will be ready for training the model after segmenting them into 2-second portions.
 
 
 ## Model Implementation and Training
 
-The model implementation and training scripts are available in the **"Model Implementation and Training"** folder. Detailed instructions in the provided notebooks will guide you through the training process using the prepared dataset.
-
+The model implementation and training scripts are available in the **"Model Implementation and Training"** folder ................   (à toi de jouer youva si tu veux ajouter des petits trucs ici)
 ## Using the Trained Model
 
 To use our trained model (`model.h5`), follow these steps:
@@ -59,66 +58,120 @@ To use our trained model (`model.h5`), follow these steps:
 ### Predicting and Visualizing Results
 
 1. Download the trained model (`model.h5`) from the repository.
-2. Use example 2-second audio files in the `examples` folder to test the model.
+2. Use example 2-second audio files in the `data_test` folder to test the model.
 3. The following Python code loads the model, makes predictions, and visualizes the results:
+(youva à toi d'adapter le code si nécessaire! mais je pense il est bon comme ca il suffit juste de créer un script python qui comprend la fonction qui calcul la cqt vu que l'entrée de modèle n'est pas un fichier audio main c'est la cqt après empilment et de l'importer dans ce script)
 
 ```python
 import tensorflow as tf
 import numpy as np
 import librosa
 import matplotlib.pyplot as plt
+# remarque : fais ca dans ton script (segment, num_frames = 181) c mieux je pense pour éviter de calculer dans ce script de démonstartion
+from compute_harmonic_cqt import compute_harmonic_cqt   
 
 # Load the trained model
 model = tf.keras.models.load_model("model.h5")
 
-# Load a 2-second audio example
-audio_path = "examples/example_audio.wav"
-y, sr = librosa.load(audio_path, sr=22050, duration=2.0)
+# Load a 2-second audio example, for example, segment_1 of 00_Jazz2-187-F#_solo_hex_cln
+audio_path = r"...\data_test\00_Jazz2-187-F#_solo_hex_cln\segments\segment_1.wav"
+segment, _ = librosa.load(audio_path, sr=22050)
 
-# Preprocess the audio (convert to Constant-Q Transform)
-cqt = librosa.cqt(y, sr=sr, n_bins=84, bins_per_octave=12)
-cqt = np.abs(cqt).T  # Transpose for compatibility
+# To compute the CQT and apply harmonic stacking
+cqt_harmonic_flattened = self.compute_harmonic_cqt(segment)
 
 # Make predictions
-predictions = model.predict(np.expand_dims(cqt, axis=0))
+Yn, Yo, Yp = model.predict(cqt_harmonic_flattened)
 
-# Visualize results
-Yn, Yo, Yp = predictions
-plt.figure(figsize=(15, 5))
-plt.subplot(3, 1, 1)
-plt.title("Yn (Note Activations)")
-plt.imshow(Yn[0], aspect='auto', origin='lower')
-plt.colorbar()
-plt.subplot(3, 1, 2)
+# Visualize the results
+plt.figure(figsize=(14, 4))
+
+plt.subplot(1, 3, 1)
+plt.imshow(Yo.T, aspect='auto', origin='lower', cmap='hot', vmin=0, vmax=1)
+plt.colorbar(label="Value")
 plt.title("Yo (Note Onsets)")
-plt.imshow(Yo[0], aspect='auto', origin='lower')
-plt.colorbar()
-plt.subplot(3, 1, 3)
+plt.xlabel("Time Frames")
+plt.ylabel("Frequency Bins")
+
+plt.subplot(1, 3, 2)
+plt.imshow(Yn.T, aspect='auto', origin='lower', cmap='hot', vmin=0, vmax=1)
+plt.colorbar(label="Value")
+plt.title("Yn (Note Activations)")
+plt.xlabel("Time Frames")
+plt.ylabel("Frequency Bins")
+
+plt.subplot(1, 3, 3)
+plt.imshow(Yp.T, aspect='auto', origin='lower', cmap='hot', vmin=0, vmax=1)
+plt.colorbar(label="Value")
 plt.title("Yp (Multi-Pitch Estimate)")
-plt.imshow(Yp[0], aspect='auto', origin='lower')
-plt.colorbar()
+plt.xlabel("Time Frames")
+plt.ylabel("Frequency Bins")
+
 plt.tight_layout()
 plt.show()
 ```
 
 ### Post-Processing
+This code is used to process the outputs of models (the posteriorgrams Yo​, Yn​) to create note events (the method used is the one described in the article). For this, we use the post_processing function, which takes the predictions of model as input and returns note events (start time, end time, MIDI note) as well as a binary representation.
 
-To generate note events (start time, end time, pitch) from the predictions, use the `post_processing.py` script:
 ```python
-from post_processing import create_note_events
+from post_processing import post_process_note_events
 
-# Post-process predictions
-note_events = create_note_events(Yn[0], Yo[0], Yp[0])
+# Post-process
+predicted_note_events, predicted_matrix_note_events = post_process_note_events(Yo.T, Yn.T)
 
-# Print the resulting note events
-for note in note_events:
-    print(f"Pitch: {note['pitch']}, Start: {note['start_time']}s, End: {note['end_time']}s")
+# Plot binary note events after post-processing
+plt.figure(figsize=(12, 10))
+plt.imshow(predicted_matrix_note_events, aspect='auto', origin='lower', cmap='Greys', vmin=0, vmax=1)
+plt.colorbar(label="Value")
+plt.title("Note Events (Post-processed)")
+plt.xlabel("Time Frames")
+plt.ylabel("Frequency Bins")
+plt.show()
 ```
 
 ## Comparison with the Original Model
+To demonstrate the original Basic Pitch model, a demo website is available to visualize a matrix of note events. To compare our results (the note event matrix visualized in the previous section) with those of the original model:
 
-To compare results with the original model:
+1. Use the same 2-second example audio file.
+2. Upload the audio file to the [Basic Pitch demonstration website](https://basicpitch.spotify.com/).
+3. Compare the binary matrix from the original model with those generated by our implementation.
 
-1. Use the same 2-second example audio files.
-2. Upload the audio files to the [Basic Pitch demonstration website](https://basicpitch.spotify.com/).
-3. Export the note event results and compare the matrices from the original model with those generated by this implementation.
+
+## Evaluation of Metrics
+To evaluate the results, we use the metrics as in the article, which include the F-measure (F), the F-measure with no offset (Fno), and note accuracy (Acc) using mir_eval. To do this, simply use the calculate_metrics function as follows:
+
+```python
+import numpy as np
+import os
+import pandas as pd
+
+# Load the ground truth data for a segment, for example, segment_1 of 00_Jazz2-187-F#_solo_hex_cln
+segment_folder = r"...\data_test\00_Jazz2-187-F#_solo_hex_cln\segments"
+id = "segment_1"
+audio_path = os.path.join(segment_folder, f"{id}.wav")   # The 2-second audio
+matrix_note_events_path = os.path.join(segment_folder, f"{id}.npy")   # The .npy file containing the note activation matrix
+note_events_path = os.path.join(segment_folder, f"{id}.csv")   # The .csv file containing note events in the form (t_start, t_end, note)
+
+# Load the associated files
+truth_matrix_note_events = np.load(matrix_note_events_path)
+truth_note_events = pd.read_csv(note_events_path)
+
+## Post-process predicted results Yo and Yn (if not already done)
+#predicted_note_events, predicted_matrix_note_events = post_process_note_events(Yo, Yn)
+
+# Convert the results into a format compatible with metrics calculation
+predicted_note_events_metric = {
+    "intervals": [(note[0], note[1]) for note in predicted_note_events],  # Extract t^0 and t^1
+    "pitches": [note[2] for note in predicted_note_events]  # Extract f (pitch)
+}
+truth_note_events_metric = {
+    "intervals": [(row["time"], row["time"] + row["duration"]) for _, row in truth_note_events.iterrows()],
+    "pitches": truth_note_events["note"].tolist()
+}
+
+# Calculating the metrics
+metrics = calculate_metrics(truth_note_events_metric, predicted_note_events_metric, truth_matrix_note_events.T, predicted_matrix_note_events)
+print(metrics)
+
+```
