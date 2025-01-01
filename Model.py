@@ -2,7 +2,7 @@
 # Définir la fonction de construction du modèle NMP
 def build_nmp_model(input_shape):
     """
-    Construit le modèle NMP selon la description donnée.
+    Construit le modèle NMP selon la description donnée dans l'article.
     Args:
         input_shape: Tuple décrivant la forme de l'entrée (hauteur, largeur, canaux).
     Returns:
