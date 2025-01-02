@@ -74,7 +74,6 @@ import tensorflow as tf
 import numpy as np
 import librosa
 import matplotlib.pyplot as plt
-# remarque : fais ca dans ton script (segment, num_frames = 181) c mieux je pense pour éviter de calculer dans ce script de démonstartion
 from compute_harmonic_cqt import compute_harmonic_cqt   
 
 # Load the trained model
