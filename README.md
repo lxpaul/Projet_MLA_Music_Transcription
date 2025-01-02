@@ -215,24 +215,6 @@ class DataGenerator(Sequence):
         }
 
 
-# Exemple d'utilisation
-if __name__ == "__main__":
-    audio_dir = "Dataset/test/audio"
-    label_dir = "Dataset/test/matrices"
-    batch_size = 16
-
-    generator = DataGenerator(audio_dir, label_dir, batch_size=batch_size, segment_duration=2.0, sr=22050, n_output_freqs=33)
-
-    X, Y = generator[0]
-
-    # Afficher les dimensions de X
-    print(f"Shape of X: {X.shape}")  # (batch_size, freq * harmonics, time)
-    
-    # Afficher toutes les clés et les dimensions des valeurs dans Y
-    print("Keys and shapes in Y:")
-    for key, value in Y.items():
-        print(f"{key}: {value.shape}")
-
 
 # Définir la fonction de construction du modèle NMP
 def build_nmp_model(input_shape):
@@ -343,14 +325,6 @@ class WeightedBinaryCrossEntropy(tf.keras.losses.Loss):
         """
         return cls(**config)
 
-
-# Exemple d'initialisation du modèle
-input_shape = (181, 264, 1)  # Exemple de taille d'entrée (CQT avec un canal)
-model = build_nmp_model(input_shape)
-
-# Afficher le résumé du modèle
-model.summary()
-print("Model outputs:", model.output_names)
 
 
 
