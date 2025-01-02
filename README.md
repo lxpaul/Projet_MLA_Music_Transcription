@@ -68,7 +68,6 @@ To use our trained model (`model.h5`), follow these steps:
 1. Download the trained model (`model.h5`) from the repository.
 2. Use example 2-second audio files in the `data_test` folder to test the model.
 3. The following Python code loads the model, makes predictions, and visualizes the results:
-(youva à toi d'adapter le code si nécessaire! mais je pense il est bon comme ca il suffit juste de créer un script python qui comprend la fonction qui calcul la cqt vu que l'entrée de modèle n'est pas un fichier audio main c'est la cqt après empilment et de l'importer dans ce script)
 
 ```python
 import tensorflow as tf
