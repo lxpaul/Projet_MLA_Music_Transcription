@@ -50,7 +50,13 @@ We can organize the data into two subfolders:
 
 ## Model Implementation and Training
 
-The model implementation and training scripts are available in the **"Model Implementation and Training"** folder ................   (à toi de jouer youva si tu veux ajouter des petits trucs ici)
+The model implementation and training scripts are available in the **"Model Implementation and Training"** folder which provides everything needed to train the Neural Music Processing (NMP) model. This lightweight, instrument-agnostic model predicts onsets (Yo), note activations (Yn), and multi-pitch estimations (Yp) for polyphonic music transcription.
+
+### Contents:
+- **Model Architecture**: Code defining the convolutional network and its multi-output structure.
+- **Data Generator**: Scripts for pre-processing audio into harmonic Constant-Q Transforms (CQT) and managing labeled data.
+- **Training Scripts**: Includes weighted loss functions, adaptive learning rate adjustments, and checkpoint saving.
+
 
 
 ## Using the Trained Model
