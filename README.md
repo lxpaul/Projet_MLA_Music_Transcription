@@ -50,7 +50,7 @@ We can organize the data into two subfolders:
 
 ## Model Implementation and Training
 
-The model implementation and training scripts are available in the **"Model Implementation and Training"** folder which provides everything needed to train the Neural Music Processing (NMP) model. This lightweight, instrument-agnostic model predicts onsets (Yo), note activations (Yn), and multi-pitch estimations (Yp) for polyphonic music transcription.
+The model implementation and training scripts are available in the **"Model Implementation and Training"** script which provides everything needed to train the Neural Music Processing (NMP) model. This lightweight, instrument-agnostic model predicts onsets (Yo), note activations (Yn), and multi-pitch estimations (Yp) for polyphonic music transcription.
 
 ### Contents:
 - **Model Architecture**: Code defining the convolutional network and its multi-output structure.
@@ -65,7 +65,7 @@ To use our trained model (`model.h5`), follow these steps:
 
 ### Predicting and Visualizing Results
 
-1. Download the trained model (`model.h5`) from the repository.
+1. Download the trained model (`best_model_weighted_full.keras`) from the repository.
 2. Use example 2-second audio files in the `data_test` folder to test the model.
 3. The following Python code loads the model, makes predictions, and visualizes the results:
 
@@ -77,7 +77,8 @@ import matplotlib.pyplot as plt
 from compute_harmonic_cqt import compute_harmonic_cqt   
 
 # Load the trained model
-model = tf.keras.models.load_model("model.h5")
+MODEL_PATH = "best_model_weighted_full.keras"
+best_model = tf.keras.models.load_model(MODEL_PATH)
 
 # Load a 2-second audio example, for example, segment_1 of 00_Jazz2-187-F#_solo_hex_cln
 audio_path = r"...\data_test\00_Jazz2-187-F#_solo_hex_cln\segments\segment_1.wav"
@@ -87,27 +88,30 @@ segment, _ = librosa.load(audio_path, sr=22050)
 cqt_harmonic_flattened = self.compute_harmonic_cqt(segment)
 
 # Make predictions
-Yn, Yo, Yp = model.predict(cqt_harmonic_flattened)
+predictions = best_model.predict(cqt_harmonic_flattened)
+Yo = predictions[0]
+Yn = predictions[1]
+Yp = predictions[2]
 
 # Visualize the results
 plt.figure(figsize=(14, 4))
 
 plt.subplot(1, 3, 1)
-plt.imshow(Yo.T, aspect='auto', origin='lower', cmap='hot', vmin=0, vmax=1)
+plt.imshow(Yo, aspect='auto', origin='lower', cmap='hot', vmin=0, vmax=1)
 plt.colorbar(label="Value")
 plt.title("Yo (Note Onsets)")
 plt.xlabel("Time Frames")
 plt.ylabel("Frequency Bins")
 
 plt.subplot(1, 3, 2)
-plt.imshow(Yn.T, aspect='auto', origin='lower', cmap='hot', vmin=0, vmax=1)
+plt.imshow(Yn, aspect='auto', origin='lower', cmap='hot', vmin=0, vmax=1)
 plt.colorbar(label="Value")
 plt.title("Yn (Note Activations)")
 plt.xlabel("Time Frames")
 plt.ylabel("Frequency Bins")
 
 plt.subplot(1, 3, 3)
-plt.imshow(Yp.T, aspect='auto', origin='lower', cmap='hot', vmin=0, vmax=1)
+plt.imshow(Yp, aspect='auto', origin='lower', cmap='hot', vmin=0, vmax=1)
 plt.colorbar(label="Value")
 plt.title("Yp (Multi-Pitch Estimate)")
 plt.xlabel("Time Frames")
