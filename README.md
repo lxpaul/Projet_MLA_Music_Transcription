@@ -61,7 +61,7 @@ The model implementation and training scripts are available in the **"Model Impl
 
 ## Using the Trained Model
 
-To use our trained model (`model.h5`), follow these steps:
+To use our trained model (`best_model_weighted_full.keras`), follow these steps:
 
 ### Predicting and Visualizing Results
 
