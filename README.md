@@ -155,6 +155,7 @@ To evaluate the results, we use the metrics as in the article, which include the
 import numpy as np
 import os
 import pandas as pd
+import calculate_metrics form calculate_metrics
 
 # Load the ground truth data for a segment, for example, segment_1 of 00_Jazz2-187-F#_solo_hex_cln
 segment_folder = r"...\data_test\00_Jazz2-187-F#_solo_hex_cln\segments"
