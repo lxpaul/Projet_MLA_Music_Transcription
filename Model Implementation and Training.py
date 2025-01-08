@@ -1,4 +1,3 @@
-```python
 import os
 import numpy as np
 import librosa
@@ -371,6 +370,3 @@ history = model.fit(
     callbacks=[checkpoint_callback, early_stopping, reduce_lr],
     verbose=1
 )
-
-
-```
